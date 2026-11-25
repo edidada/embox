@@ -1,0 +1,22 @@
+name: Experiment CI - units
+
+on:
+  push:
+    branches:
+      - edidada/master
+  workflow_dispatch:
+
+jobs:
+  units:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/embox/emdocker-test/emdocker-test:latest
+      options: --privileged -v /:/host
+    steps:
+      - uses: actions/checkout@v4
+      # Same build steps as upstream ci.yml, reduced to the lightweight
+      # x86/test/units template so a fork can validate it quickly.
+      - run: ./scripts/continuous/prepare.sh x86/test/units
+      - run: make confload-x86/test/units
+      - run: make -j $(nproc)
+      - run: ./scripts/continuous/run.sh x86/test/units
